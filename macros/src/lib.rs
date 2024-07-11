@@ -383,11 +383,16 @@ fn tests_impl(args: TokenStream, input: TokenStream) -> parse::Result<TokenStrea
             ::core::mem::transmute(t)
         }
 
-        #[export_name = "main"]
+        //#[export_name = "main"]
         unsafe extern "C" fn __embedded_test_entry() -> ! {
             // The linker file will redirect this call to the function below.
             // This trick ensures that we get a compile error, if the linker file was not added to the rustflags.
             #krate::export::ensure_linker_file_was_added_to_rustflags();
+        }
+
+        #[riot_rs::thread(autostart, stacksize = 16384)]
+        fn embedded_test() {
+            unsafe { __embedded_test_entry() }
         }
 
         #[no_mangle]
